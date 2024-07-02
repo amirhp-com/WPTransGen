@@ -58,8 +58,8 @@ WPTransGen is a tool designed to simplify the creation of translation files for 
    - Select "Make Translations" from the Quick Actions menu.
 
 ## Screenshots
-|Shot 1|Shot 2|Shot 3|Shot 4|
-|---|---|---|---|
+| Shot 1 | Shot 2 | Shot 3 | Shot 4 |
+| :---:  | :---:  | :---:  | :---:  |
 |![](shot1.jpeg)|![](shot2.jpeg)|![](shot3.jpeg)|![](shot4.jpeg)|
 
 ## License
