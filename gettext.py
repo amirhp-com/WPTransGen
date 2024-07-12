@@ -1,8 +1,9 @@
 '''
 @Author: Amirhossein Hosseinpour <https://amirhp.com>
+@Version: 1.3.0
 @Date Created: 2024/07/02 16:35:01
 @Last modified by: amirhp-com <its@amirhp.com>
-@Last modified time: 2024/07/02 18:02:01
+@Last modified time: 2024/07/13 02:28:50
 '''
 
 import os
@@ -33,7 +34,7 @@ def find_main_plugin_file(directory):
     return None
 
 def send_notification(title, message):
-    script = f'display notification "{message}" with title "{title}" subtitle "Developed by AmirhpCom" sound name "Frog"'
+    script = f'display notification "{message}" with title "{title}" subtitle "" sound name "Frog"'
     subprocess.run(["osascript", "-e", script])
 
 def extract_plugin_data(file_path):
@@ -51,6 +52,9 @@ def extract_plugin_data(file_path):
 def create_pot_file(directory, plugin_data):
     pot_file_path = os.path.join(directory, 'languages', f"{plugin_data['text_domain']}.pot")
     os.makedirs(os.path.dirname(pot_file_path), exist_ok=True)
+
+    if os.path.isfile(pot_file_path):
+        return False
 
     pot = polib.POFile()
     pot.metadata = {
@@ -107,6 +111,9 @@ def create_fa_IR_translation(directory, plugin_data):
     os.makedirs(fa_IR_dir, exist_ok=True)
     fa_IR_po_file_path = os.path.join(fa_IR_dir, f"{plugin_data['text_domain']}-fa_IR.po")
 
+    if os.path.isfile(fa_IR_po_file_path):
+        return False
+    
     pot = polib.pofile(pot_file_path)
     po = polib.POFile()
 
@@ -131,13 +138,22 @@ if __name__ == "__main__":
         file_path = find_main_plugin_file(directory)
         if file_path:
             plugin_data = extract_plugin_data(file_path)
-            create_pot_file(directory, plugin_data)
-            create_fa_IR_translation(directory, plugin_data)
-            send_notification("Translation Extraction", "POT file has been successfully created.")
+            pot_file = create_pot_file(directory, plugin_data)
+            if pot_file != False:
+                fa_IR_translation = create_fa_IR_translation(directory, plugin_data)
+                if fa_IR_translation != False:
+                    send_notification("Translation Extraction", "POT Template: ✅ Created\nFa Translation: ✅ Created")
+                else:
+                    send_notification("Translation Extraction", "POT Template: ✅ Created\nFa Translation: ❌ Already Exists")
+            else:
+                fa_IR_translation = create_fa_IR_translation(directory, plugin_data)
+                if fa_IR_translation != False:
+                    send_notification("Translation Extraction", "POT Template: ❌ Already Exists\nFa Translation: ✅ Created")
+                else:
+                    send_notification("Translation Extraction", "POT Template: ❌ Already Exists\nFa Translation: ❌ Already Exists")
         else:
-            send_notification("Translation Extraction", "Main plugin file not found.")
+            send_notification("Translation Extraction", "⚠️ Main plugin file not found.")
             print("Main plugin file not found.")
     else:
-        send_notification("Translation Extraction", "Please provide the directory path.")
+        send_notification("Translation Extraction", "⚠️ Please provide the directory path.")
         print("Please provide the directory path.")
-
